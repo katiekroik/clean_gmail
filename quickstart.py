@@ -25,13 +25,20 @@ def search_messages(service, query):
     messages = []
 
     if 'messages' in result:
-        messages.extend(result['messages'])
+        #messages.append(result['messages']['id'])
+        add_ids_to_list(messages, result['messages'])
     while 'nextPageToken' in result:
         page_token = result['nextPageToken']
         result = service.users().messages().list(userId='me', q=query, pageToken=page_token).execute()
         if 'messages' in result:
-            messages.extend(result['messages'])
+            #messages.append(result['messages']['id'])
+            add_ids_to_list(messages, result['messages'])
+    print("returning messages " + str(messages))
     return messages
+
+def add_ids_to_list(messages, results):
+    for arr in results:
+        messages.append(arr['id'])
 
 def mark_as_unread(service, query):
     messages_to_mark = search_messages(service, query)
@@ -173,12 +180,8 @@ def delete_messages(service, query):
     ).execute()
 
 def trash_messages(service, message_id):
-    messages_to_trash = search_messages(service, query)
-    return service.users().messages.trash(
-      userId='me,
-      id=message_id
-      
-    ).execute()
+    print('deleted message ' + str(message_id))
+    return service.users().messages().trash(userId='me', id=message_id).execute()
     
 
 def main():
